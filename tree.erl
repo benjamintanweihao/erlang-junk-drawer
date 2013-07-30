@@ -1,5 +1,5 @@
 -module(tree).
--export([empty/0, insert/3, lookup/2]).
+-export([empty/0, insert/3, lookup/2, has_value/2, has_value1/2]).
 
 % A non-empty node: 
 % {node, {Key, Value, Smaller, Larger}}
@@ -29,3 +29,26 @@ lookup(Key, {node, {NodeKey, _, Smaller, _}}) when Key < NodeKey ->
 lookup(Key, {node, {NodeKey, _, _, Larger}}) when Key > NodeKey -> 
 	lookup(Key, Larger).
 
+
+%% looks for a given value 'Val' in the tree
+has_value(_, {node, 'nil'}) -> 
+	false;
+has_value(Val, {node, {_, Val, _, _}}) ->
+	true;
+has_value(Val, {node, {_, _, Left, Right}}) ->
+	case has_value(Val, Left) of
+		true -> true;
+		false -> has_value(Val, Right)
+	end.
+
+%% this version uses 'throw' as control flow. instead of testing each an 
+%% every branch, once a match has been found, 'true' is thrown, where this
+%% will bubble up an eventually be caught. Once this is done, we have found
+%% our value.
+has_value1(_, {node, 'nil'}) ->
+	false;
+has_value1(Val, {node, {_, Val, _, _}}) ->
+	throw(true);
+has_value1(Val, {node, {_, _, Left, Right}}) ->
+	has_value1(Val, Left), 
+	has_value1(Val, Right). 
